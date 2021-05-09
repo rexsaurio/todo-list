@@ -1,10 +1,15 @@
 const express = require('express');
-const app = express();
+const expressLogs = require('express-logs');
 const mysql = require('mysql2/promise');
 const db_config = require('./db.config');
+
+const app = express();
 const pool = mysql.createPool(db_config);
 const port = process.env.PORT || 3000;
+
+
 app.use(express.json());
+app.use(expressLogs());
 
 app.get('/notes', async (req, res) => {
     let conn
@@ -56,6 +61,7 @@ app.get('/notes/:id', async (req, res) => {
 })
 
 app.post('/notes', async (req, res) => {
+    req.logs.log('Create note request start.')
     const note = req.body;
     let conn;
     try {
@@ -144,7 +150,7 @@ app.delete('/notes/:id', async (req, res) => {
     finally {
         if (conn) await conn.release();
     }
-}); 
+});
 
 app.listen(port);
 console.log('app running in port ', port)
